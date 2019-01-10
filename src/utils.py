@@ -46,6 +46,26 @@ class AlmacenLoader:
                 self.excel_file['Sub inventario'].values[i], 
                 self.excel_file['PDV'].values[i], 
                 # find row in the dataframe by ID
-                self.excel_file.loc[self.excel_file['Sub inventario'] == self.excel_file['Sub inventario'].iloc[0]]))
+                self.excel_file.loc[self.excel_file['Sub inventario'] == self.excel_file['Sub inventario'].iloc[i]]))
+
+        return self.almacenes
+
+class AlmacenLoader:
+    def __init__(self, file_path):
+        # lee el excel y obtener un dataframe de el
+        data = DataLoader(file_path)
+        self.excel_file = data.load_dataframe()
+        # lista de almacenes
+        self.almacenes = []
+
+    def load (self):
+        n = len(self.excel_file)
+
+        for i in range(n):
+            self.almacenes.append(Almacen( 
+                self.excel_file['Sub inventario'].values[i], 
+                self.excel_file['PDV'].values[i], 
+                # find row in the dataframe by ID
+                self.excel_file.loc[self.excel_file['Sub inventario'] == self.excel_file['Sub inventario'].iloc[i]]))
 
         return self.almacenes
