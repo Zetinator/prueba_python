@@ -40,14 +40,12 @@ class AlmacenLoader:
 
     def load (self):
         n = len(self.excel_file)
-        # buscar por ID
-        # datos.loc[datos['Sub inventario'] == datos['Sub inventario'].iloc[0]]
 
         for i in range(n):
             self.almacenes.append(Almacen( 
                 self.excel_file['Sub inventario'].values[i], 
                 self.excel_file['PDV'].values[i], 
                 # find row in the dataframe by ID
-                datos.loc[datos['Sub inventario'] == datos['Sub inventario'].iloc[0]]))
+                self.excel_file.loc[self.excel_file['Sub inventario'] == self.excel_file['Sub inventario'].iloc[0]]))
 
         return self.almacenes
