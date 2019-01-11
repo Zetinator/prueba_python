@@ -10,19 +10,16 @@ import os
 import csv
 
 class Almacen:
-    def __init__(self, ID, PDV, info, recibidos):
+    def __init__(self, ID, PDV, info, sub_inventario):
         # setup variables
         self.ID = ID
         self.PDV = PDV
         self.info = info
-        self.recibidos = recibidos
+        self.sub_inventario = sub_inventario
         # llenado de sub inventario
-        self.sub_inventario = self.info.iloc[:,2:self.info.shape[1]-1]
+        self.orden_compra = self.info.iloc[:,2:self.info.shape[1]-1]
         # drop the nans by columns
-        self.sub_inventario = self.sub_inventario.dropna(axis=1)
-    def recibe (self):
-        loader = RecepcionLoader
-        return (0)
+        self.orden_compra = self.orden_compra.dropna(axis=1)
 
 
 class DataLoader:
@@ -44,9 +41,9 @@ class AlmacenLoader:
         # lista de almacenes
         self.almacenes = []
 
-    def load (self):
         n = len(self.excel_file)
 
+        # hora de llenar los almacenes de ordenes de compra y de sub inventarios
         for i in range(n):
             self.almacenes.append(Almacen( 
                 self.excel_file['Sub inventario'].values[i], 
@@ -55,8 +52,6 @@ class AlmacenLoader:
                 self.excel_file.loc[self.excel_file['Sub inventario'] == self.excel_file['Sub inventario'].iloc[i]],
                 self.recibidos_loader.load(self.excel_file['Sub inventario'].values[i])
                 ))
-
-        return self.almacenes
 
 class RecepcionLoader:
     def __init__(self, file_path):
@@ -67,5 +62,15 @@ class RecepcionLoader:
     def load (self, almacen_ID):
         # find row in the dataframe by ID
         recibidos = self.excel_file.loc[self.excel_file['SUBINVENTARIO'] == almacen_ID]
+        # --------------------validaciones--------------------
+        # columnas necesarias
+        columnas_necesarias = ['SUBINVENTARIO', 'NOMBRE', 'MODELO', 'IMEI', 'FOLIO']
+        if not(self.excel_file.columns.isin(columnas_necesarias).all()):
+            print('ERROR: Documento de orden de compra no cumple con las columnas necesarias')
+        # imei repetido
+        if (recibidos['IMEI'].duplicated().any()):
+            print('ERROR: Codigos IMEI repetidos')
+        # --------------------end_validaciones--------------------
 
+        recibidos = recibidos.set_index('MODELO').stack()
         return recibidos
